@@ -1,0 +1,76 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# ---------------------------------------------------------------
+# Project-specific
+# ---------------------------------------------------------------
+
+# Personal notes. These are thinking-out-loud documents -- idea.md is the
+# original brief, plan.md is the design record including everything that went
+# wrong, build.md is the step-by-step guide. They are written for the person
+# building this, not for whoever clones it, and plan.md in particular is
+# candid in a way that only makes sense in private.
+idea.md
+plan.md
+build.md
+
+# Secrets -- NEVER commit. If this leaks, rotate the key immediately.
+# `.env.*` catches the copies people make and then forget about -- .env.backup,
+# .env.old, .env.production -- while the `!` keeps the template, which holds no
+# values and is meant to be shared.
+.env
+.env.*
+!.env.example
+
+# Streamlit's OWN secrets file, which is not .env and lives in its own folder.
+# It is where Streamlit's docs tell you to put API keys, so it is exactly the
+# file someone adds at deploy time and never thinks to check.
+.streamlit/secrets.toml
+
+# Downloaded audio and raw transcription output.
+# Large and fully regenerable from the source video, so we keep them
+# out of git. data/processed/chunks.jsonl IS committed -- it is small
+# and it is what makes the pipeline reproducible without re-transcribing.
+data/audio/
+data/raw/
+
+# Embeddings are derived from chunks.jsonl and rebuild in about a minute,
+# so there is nothing here worth versioning. The .meta.json sidecar names the
+# chunks.jsonl that built the .npy -- it is meaningless without the .npy.
+data/processed/embeddings*
+
+# The language experiment's cached Groq responses. Regenerable, and they hold
+# raw transcript text that the committed chunks.jsonl already contains.
+eval/langtest_cache/
+
+# Question -> search-form conversions (app/rag.py). Regenerable, and it holds
+# whatever students typed, which is nobody else's business.
+data/processed/convert_cache.json
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Claude Code's per-machine settings. The shared .claude/settings.json is worth
+# committing someday; this one is personal -- it holds the permission prompts
+# that were approved on THIS machine, and would override someone else's.
+.claude/settings.local.json
+
+# Insurance for the embedding model's 470 MB of weights. HF_CACHE_DIR points at
+# E:/hf-cache today, outside the repo -- this only matters if someone edits it
+# to a path inside, at which point a plain `git add .` would try to commit it.
+hf-cache/
+
+# Logs from streamlit / yt-dlp / ffmpeg runs.
+*.log
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
