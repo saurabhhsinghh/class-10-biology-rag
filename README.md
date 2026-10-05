@@ -1,13 +1,3 @@
----
-title: Class 10 Biology Revision
-emoji: 🧬
-colorFrom: green
-colorTo: blue
-sdk: streamlit
-app_file: app/app.py
-pinned: false
----
-
 # Class 10 Biology Revision Assistant
 
 Ask a question about a 4-hour Hinglish Biology revision lecture and get an answer
@@ -83,6 +73,43 @@ uv run python ingest/05_upload.py       # verify, then push to Qdrant
 `03_chunk.py` is safe to re-run. `04`/`05` check a content fingerprint before reusing
 anything on disk — a stale `embeddings.npy` would otherwise produce confident
 timestamps pointing at the wrong minute, with nothing in the UI looking wrong.
+
+---
+
+## Deploying
+
+Hosted on **Streamlit Community Cloud** — free, runs `streamlit run` natively, and
+deploys straight from this GitHub repo.
+
+Not Hugging Face Spaces, which is where this was originally headed. HF removed
+Streamlit as a built-in SDK on 2025-04-30, so a Streamlit app there needs the Docker
+SDK, and Docker Spaces require a paid plan. HF's free tier is Static Spaces, which
+serve HTML only — no Python, so none of this can run there.
+
+To deploy: <https://share.streamlit.io> → sign in with GitHub → **Create app** →
+Deploy a public app from GitHub.
+
+| Field | Value |
+|---|---|
+| Repository | `saurabhhsinghh/class-10-biology-revision-rag` |
+| Branch | `main` |
+| Main file path | `app/app.py` |
+| Python version (Advanced settings) | `3.11` |
+
+Then paste the three keys into **Advanced settings → Secrets**, at the top level, in
+TOML:
+
+```toml
+GEMINI_API_KEY = "..."
+QDRANT_URL = "..."
+QDRANT_API_KEY = "..."
+```
+
+Keep them at the top level — a key nested under a `[section]` is not exposed as an
+environment variable, and `rag.py` reads `os.environ`. `app.py` copies them across
+from `st.secrets` on startup as a fallback.
+
+Reboot the app after changing secrets; they are read once, at startup.
 
 ---
 

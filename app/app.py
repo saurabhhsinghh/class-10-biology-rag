@@ -30,6 +30,7 @@ there is exactly one code path that draws a message.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -39,6 +40,31 @@ import streamlit.components.v1 as components
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from rag import ask, video_embed_url  # noqa: E402
+
+
+def _secrets_to_environ() -> None:
+    """Copy Streamlit secrets into the environment, for Community Cloud.
+
+    Locally the keys come from .env, which rag.py loads on import. On Streamlit
+    Community Cloud there is no .env -- the keys are set in the app's Secrets
+    box as root-level TOML. Those are documented to also arrive as environment
+    variables, but a key nested under a TOML section never does, and this costs
+    five lines against a failure that looks like "QDRANT_URL is not set".
+
+    rag.py reads os.environ at call time, so anything already set wins and this
+    never overwrites it.
+    """
+    for key in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "QDRANT_URL",
+                "QDRANT_API_KEY", "GROQ_API_KEY"):
+        if os.environ.get(key):
+            continue
+        try:
+            os.environ[key] = st.secrets[key]
+        except Exception:      # no secrets configured, or key absent -- both fine
+            pass
+
+
+_secrets_to_environ()
 
 st.set_page_config(
     page_title="Class 10 Biology Revision",
